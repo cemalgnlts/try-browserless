@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Preview</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        /* background: #282a36; */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: radial-gradient(hsla(60 30% 96.078% / 0.2) 0.5px, hsla(231.43 14.894% 16.588% / 1) 0.5px);
+      }
+      img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+      progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+        overflow: hidden;
+        height: 0.3rem;
+        border-radius: 1rem;
+        vertical-align: baseline;
+        /* background-color: #2a2c39; */
+        background: red;
+      }
+      progress::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -40%;
+        width: 33.333333%;
+        border-radius: 1rem;
+        animation: progress-loading 5s infinite ease-in-out;
+        background-color: hsl(264.71 89.474% 77.647%);
+      }
+
+      @keyframes progress-loading {
+        50% {
+          left: 107%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <progress aria-label="Response waiting..."></progress>
+    <img src="" id="img" />
+    <script>
+      const img = document.getElementById("img");
+      window.addEventListener("message", (event) => {
+        const frame = event.data;
+
+        img.src = `data:type/jpeg;base64,${frame}`;
+      });
+    </script>
+  </body>
+</html>

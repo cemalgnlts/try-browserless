@@ -1,0 +1,30 @@
+{
+  "name": "try-browserless",
+  "private": true,
+  "version": "1.0.0",
+  "author": "Cemal Gönültaş",
+  "license": "SEE LICENSE IN ../LICENSE",
+  "scripts": {
+    "dev": "vite",
+    "direct-build": "vite build",
+    "build": "node --max_old_space_size=16384 ./node_modules/vite/bin/vite.js build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.5.0",
+    "puppeteer-core": "14.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@heroicons/react": "^2.0.17",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^3.1.0",
+    "autoprefixer": "^10.4.14",
+    "daisyui": "^2.51.5",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.3.1",
+    "vite": "^4.2.1"
+  }
+}

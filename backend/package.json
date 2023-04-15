@@ -1,0 +1,19 @@
+{
+  "name": "try-browserless",
+  "private": true,
+  "version": "1.0.0",
+  "author": "Cemal Gönültaş",
+  "license": "SEE LICENSE IN ../LICENSE",
+	"type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon -e js --delay 2"
+  },
+  "dependencies": {
+    "deta": "^1.1.0",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
