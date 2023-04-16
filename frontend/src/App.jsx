@@ -5,7 +5,6 @@ import FileTabs from "./components/filetabs";
 import Toolbar from "./components/toolbar";
 import Console from "./components/console";
 import Loading from "./components/editor/Loading";
-import { Split } from "@geoffcox/react-splitter";
 
 const Editor = lazy(() => import("./components/editor"));
 

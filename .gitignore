@@ -23,6 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# CodeSandbox
+.codesandbox
+
 # Enviroment variables
 .env
 
