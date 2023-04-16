@@ -15,7 +15,4 @@ export default defineConfig({
 			"dns": fileURLToPath(new URL("src/libs/dns.js", import.meta.url))
 		}
 	},
-	rollupOptions: {
-		maxParallelFileOps: Math.max(1, cpus().length - 1)
-	}
 });

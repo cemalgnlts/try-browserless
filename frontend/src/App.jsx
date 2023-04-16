@@ -1,7 +1,7 @@
 import { useCallback, useState, useRef, useEffect, lazy, Suspense } from "react";
 
 import Navbar from "./components/navbar";
-import TabMenu from "./components/tabmenu";
+import FileTabs from "./components/filetabs";
 import Toolbar from "./components/toolbar";
 import Console from "./components/console";
 import Loading from "./components/editor/Loading";
@@ -22,33 +22,36 @@ function Root() {
   const popupWin = useRef(null);
 
   useEffect(() => {
-    if (worker.current === null) {
-      const messageHandler = (msg) => {
-        const { type, data } = msg.data;
-        
-        switch (type) {
-          case "browserClosed":
-            setBrowserStarted(false);
-            if (popupWin.current !== null) popupWin.current.close();
-            logger.current.html(`<span class="log-small">Completed: ${(data / 1000).toFixed(2)} seconds.</span>`);
-            break;
-          case "frame":
-            if (popupWin.current !== null) popupWin.current.postMessage(data.img);
-            break;
-          case "log":
-            const { fun, args } = data;
-            logger.current[fun](...args);
-            break;
-        }
-      };
+    if (worker.current === null) return;
+    
+    const messageHandler = (msg) => {
+      const { type, data } = msg.data;
 
-      worker.current = new PuppeteerWorker();
-      worker.current.onmessage = messageHandler;
-      worker.current.onerror = (res) => {
-        console.error(res);
-        logger.current.error(res.message ?? res)
-      };
-    }
+      switch (type) {
+        case "browserClosed": {
+          setBrowserStarted(false);
+          if (popupWin.current !== null) popupWin.current.close();
+          logger.current.html(`<span class="log-small">Completed: ${(data / 1000).toFixed(2)} seconds.</span>`);
+          break;
+        }
+        case "frame": {
+          if (popupWin.current !== null) popupWin.current.postMessage(data.img);
+          break;
+        }
+        case "log": {
+          const { fun, args } = data;
+          logger.current[fun](...args);
+          break;
+        }
+      }
+    };
+
+    worker.current = new PuppeteerWorker();
+    worker.current.onmessage = messageHandler;
+    worker.current.onerror = (res) => {
+      console.error(res);
+      logger.current.error(res.message ?? res);
+    };
   }, []);
 
   const runBrowser = useCallback(async () => {
@@ -74,7 +77,7 @@ function Root() {
       <Toolbar runBrowser={runBrowser} browserStarted={browserStarted} editorUndo={editorUndo} editorRedo={editorRedo} />
       <div className="grow flex content">
         <aside className="bg-base-300 hidden z-10 lg:block" style={{ display: isTabMenuVisible && "flex" }}>
-          <TabMenu />
+          <FileTabs />
         </aside>
         <main className="h-full grow overflow-hidden">
           <Suspense fallback={<Loading />}>
