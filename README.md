@@ -1,6 +1,6 @@
 # Try Browserless
 
-> Playground for puppeteer [Puppeteer](https://pptr.dev/). Run scripts, preview live, share with others.
+> Playground for [Puppeteer](https://pptr.dev/). Run scripts, preview live, share with others.
 
 This project is inspired by the [browserless/debugger](https://github.com/browserless/debugger) project. If your only use is debugging, [browserless/debugger](https://github.com/browserless/debugger) might be a better option.
 
