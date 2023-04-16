@@ -30,7 +30,7 @@ function Toolbar({ browserStarted, runBrowser, editorUndo, editorRedo }) {
 
   return (
     <div className="flex bg-base-300">
-      <div className="w-44 hidden lg:block"></div>
+      <div className="w-48 hidden lg:block"></div>
       <div className="tooltip" data-tip="Redo code edit">
         <button className="btn btn-sm btn-ghost gap-2" onClick={onUndo} disabled={!canUndo}>
           <ArrowUturnLeftIcon className="w-5 h-5 align-bottom" />

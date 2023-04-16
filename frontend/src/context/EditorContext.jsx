@@ -32,7 +32,7 @@ function editorReducer(states, { type, value, tab }) {
     }
     case "save": {
       const tabs = { ...states.tabs };
-      tabs[tab] = { name: tab, value };
+      tabs[states.tab.name].value = value;
 
       localStorage.setItem("tabs", JSON.stringify(tabs));
 
@@ -52,7 +52,7 @@ function editorReducer(states, { type, value, tab }) {
     case "tab": {
       const file = states.tabs[tab];
 
-      return { ...states, tab: file };
+      return { ...states, tab: file, canShare: false, canRedo: false, canUndo: false };
     }
     case "rename": {
       let tabs = { ...states.tabs };

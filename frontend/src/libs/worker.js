@@ -19,8 +19,6 @@ const logger = new Proxy(
   }
 );
 
-console.log("worker ready.");
-
 self.addEventListener("message", async (message) => {
   const { type, data } = message.data;
 
@@ -51,7 +49,7 @@ async function startBrowser({ code, options }) {
 
   const page = await browser.newPage();
   page._screenshot = page.screenshot;
-  page.screenshot = (args) => page._screenshot({ ...args, fullPage: false, encoding: "base64" });
+  page.screenshot = (args) => page._screenshot({ ...args, encoding: "base64" });
 
   let client = null;
   if (options.livePreview) client = await initLivePreview(page);
@@ -87,22 +85,21 @@ async function startBrowser({ code, options }) {
 
 async function initLivePreview(page) {
   const client = await page.target().createCDPSession();
-  client.on("Page.screencastFrame", (frame) => {
+  client.on("Page.screencastFrame", ({ data, sessionId }) => {
     self.postMessage({
       type: "frame",
       data: {
-        img: frame.data
+        img: data
       }
     });
-    client.send("Page.screencastFrameAck", {
-      sessionId: frame.sessionId
-    });
+
+    client.send("Page.screencastFrameAck", { sessionId });
   });
 
   await client.send("Page.startScreencast", {
     format: "jpeg",
     quality: 10,
-    everyNthFrame: 1
+    everyNthFrame: 2
   });
 
   return client;

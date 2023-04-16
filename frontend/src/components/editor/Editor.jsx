@@ -16,7 +16,7 @@ function Editor({ setEditorUndo, setEditorRedo }) {
   const [version, setVersion] = useState(0);
 
   function autoSave(value) {
-    dispatch({ type: "save", tab: tab.name, value });
+    dispatch({ type: "save", value });
   }
 
   const onEditorMount = (editor, monaco) => {

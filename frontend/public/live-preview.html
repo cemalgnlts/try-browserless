@@ -62,11 +62,7 @@
     <img src="" id="img" />
     <script>
       const img = document.getElementById("img");
-      window.addEventListener("message", (event) => {
-        const frame = event.data;
-
-        img.src = `data:type/jpeg;base64,${frame}`;
-      });
+      window.addEventListener("message", (event) => img.src = `data:type/jpeg;base64,${event.data}`);
     </script>
   </body>
 </html>
