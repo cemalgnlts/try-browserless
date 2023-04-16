@@ -35,24 +35,45 @@ function editorReducer(states, { type, value, tab }) {
       tabs[tab] = { name: tab, value };
 
       localStorage.setItem("tabs", JSON.stringify(tabs));
+
       return { ...states, canShare: true, tabs };
     }
+    case "insert": {
+      const tabs = { ...states.tabs };
+      tabs[value] = {
+        name: value,
+        value: mainFile
+      };
+
+      localStorage.setItem("tabs", JSON.stringify(tabs));
+
+      return { ...states, tabs, tab: tabs[value] };
+    }
     case "tab": {
-      const tab = states.tabs[tab];
-      return { ...states, tab };
+      const file = states.tabs[tab];
+
+      return { ...states, tab: file };
     }
     case "rename": {
-      const tabs = { ...states.tabs };
-      const tab = tabs.find((file) => file.name === tab);
-      delete tabs[tab.name];
-      tabs = { ...tabs, tab };
-      
+      let tabs = { ...states.tabs };
+
+      const file = Object.values(tabs).find((file) => file.name === tab);
+      file.name = value;
+
+      delete tabs[tab];
+      tabs = { ...tabs, [value]: file };
+
+      localStorage.setItem("tabs", JSON.stringify(tabs));
+
       return { ...states, tabs };
     }
     case "delete": {
-      const tabs = states.tabs.filter((file) => file.name !== tab);
+      const tabs = { ...states.tabs };
+      delete tabs[tab];
+
       localStorage.setItem("tabs", JSON.stringify(tabs));
-      return { ...states, tabs };
+
+      return states.tab.name !== tab ? { ...states, tabs } : { ...states, tabs, tab: tabs[Object.keys(tabs)[0]] };
     }
 
     default:
@@ -60,7 +81,7 @@ function editorReducer(states, { type, value, tab }) {
   }
 }
 
-const mainFile = `await page.goto("https://deta.space")
+const mainFile = `await page.goto("https://browserless.io")
 
 const title = await page.title()
 
@@ -79,7 +100,7 @@ const initialStates = {
   canRedo: false,
   canUndo: false,
   canShare: false,
-  tab: files["index.js"],
+  tab: tabs["index.js"],
   tabs
 };
 

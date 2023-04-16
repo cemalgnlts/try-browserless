@@ -5,53 +5,56 @@ import FileTabs from "./components/filetabs";
 import Toolbar from "./components/toolbar";
 import Console from "./components/console";
 import Loading from "./components/editor/Loading";
+import { Split } from "@geoffcox/react-splitter";
 
 const Editor = lazy(() => import("./components/editor"));
 
 import { useNavbarContext } from "./context/NavbarContext.jsx";
 
 import PuppeteerWorker from "./libs/worker.js?worker";
+import { useEditorStates } from "./context/EditorContext";
 
 function Root() {
   const [editorUndo, setEditorUndo] = useState(null);
   const [editorRedo, setEditorRedo] = useState(null);
   const [browserStarted, setBrowserStarted] = useState(false);
   const { theme, isTabMenuVisible, isLogsVisible } = useNavbarContext();
+  const { tab } = useEditorStates();
   const worker = useRef(null);
   const logger = useRef(null);
   const popupWin = useRef(null);
 
   useEffect(() => {
-    if (worker.current === null) return;
-    
-    const messageHandler = (msg) => {
-      const { type, data } = msg.data;
+    if (worker.current === null) {
+      const messageHandler = (msg) => {
+        const { type, data } = msg.data;
 
-      switch (type) {
-        case "browserClosed": {
-          setBrowserStarted(false);
-          if (popupWin.current !== null) popupWin.current.close();
-          logger.current.html(`<span class="log-small">Completed: ${(data / 1000).toFixed(2)} seconds.</span>`);
-          break;
+        switch (type) {
+          case "browserClosed": {
+            setBrowserStarted(false);
+            if (popupWin.current !== null) popupWin.current.close();
+            logger.current.html(`<span class="log-small">Completed: ${(data / 1000).toFixed(2)} seconds.</span>`);
+            break;
+          }
+          case "frame": {
+            if (popupWin.current !== null) popupWin.current.postMessage(data.img);
+            break;
+          }
+          case "log": {
+            const { fun, args } = data;
+            logger.current[fun](...args);
+            break;
+          }
         }
-        case "frame": {
-          if (popupWin.current !== null) popupWin.current.postMessage(data.img);
-          break;
-        }
-        case "log": {
-          const { fun, args } = data;
-          logger.current[fun](...args);
-          break;
-        }
-      }
-    };
+      };
 
-    worker.current = new PuppeteerWorker();
-    worker.current.onmessage = messageHandler;
-    worker.current.onerror = (res) => {
-      console.error(res);
-      logger.current.error(res.message ?? res);
-    };
+      worker.current = new PuppeteerWorker();
+      worker.current.onmessage = messageHandler;
+      worker.current.onerror = (res) => {
+        console.error(res);
+        logger.current.error(res.message ?? res);
+      };
+    }
   }, []);
 
   const runBrowser = useCallback(async () => {
@@ -59,7 +62,7 @@ function Root() {
     logger.current.clear();
 
     const data = {
-      code: localStorage.getItem("code"),
+      code: tab.value,
       options: JSON.parse(localStorage.getItem("options"))
     };
 
@@ -84,7 +87,7 @@ function Root() {
             <Editor setEditorUndo={setEditorUndo} setEditorRedo={setEditorRedo} />
           </Suspense>
         </main>
-        <div className="bg-base-300 w-56 md:w-72 lg:w-80 -mt-8 xl:w-96 shrink-0 overflow-hidden z-10 hidden md:block" style={{ display: isLogsVisible && "flex" }}>
+        <div className="bg-base-300 w-56 md:w-72 lg:w-80 -mt-8 xl:w-96 shrink-0 overflow-hidden z-[2] hidden md:block" style={{ display: isLogsVisible && "flex" }}>
           <Console logger={logger} />
         </div>
       </div>

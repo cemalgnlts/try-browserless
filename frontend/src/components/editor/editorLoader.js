@@ -17,6 +17,10 @@ import puppeteerLibSource from "puppeteer-core/lib/types.d.ts?raw";
 };*/
 
 export default function configureMonaco(monaco) {
+  // If Type is already defined, do not define it again.
+  const extraLibs = monaco.languages.typescript.javascriptDefaults.getExtraLibs();
+  if (extraLibs["node_modules/puppeteer-core/lib/types.d.ts"]) return;
+
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
     target: monaco.languages.typescript.ScriptTarget.ESNext,
     allowNonTsExtensions: true
