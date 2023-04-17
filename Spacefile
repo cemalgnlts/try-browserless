@@ -11,6 +11,8 @@ micros:
     dev: "npm run dev"
     commands:
       - "npm run build"
+    public_routes:
+      - "/*"
 
   - name: "backend"
     src: "./backend"
@@ -18,3 +20,5 @@ micros:
     run: "node index.js"
     path: "/api"
     dev: "npm run dev"
+    public_routes:
+      - "/*"
