@@ -40,14 +40,14 @@ function editorReducer(states, { type, value, tab }) {
     }
     case "insert": {
       const tabs = { ...states.tabs };
-      tabs[value] = {
-        name: value,
-        value: mainFile
+      tabs[tab] = {
+        name: tab,
+        value: value ?? mainFile
       };
 
       localStorage.setItem("tabs", JSON.stringify(tabs));
 
-      return { ...states, tabs, tab: tabs[value] };
+      return { ...states, tabs, tab: tabs[tab] };
     }
     case "tab": {
       const file = states.tabs[tab];

@@ -1,21 +1,21 @@
-export async function shareCode(code) {
-	const req = await fetch("/api/share", {
+export async function shareCode(name, code) {
+	const req = await fetch(`/api/share?name=${name}`, {
 		method: "POST",
 		body: code
 	});
 
 	const key = await req.text();
 
-	if(!req.ok()) throw key;
+	if (!req.ok) throw key;
 
 	return `${location.origin}?share=${key}`;
 }
 
-export async function findCode(code) {
+export async function loadCode(code) {
 	const req = await fetch(`/api/share/${code}`);
-	const code = await req.text();
+	const text = await req.text();
 
-	if(!req.ok()) throw code;
+	if (!req.ok) throw text;
 
-	return code;
+	return JSON.parse(text);
 }

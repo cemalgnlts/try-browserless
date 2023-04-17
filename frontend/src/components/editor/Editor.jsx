@@ -2,18 +2,51 @@ import { useCallback, useRef, useEffect, useState, memo } from "react";
 
 import useDebounceCallback from "../../hooks/useDebounceCallback";
 import { useEditorStateDispatch, useEditorStates } from "../../context/EditorContext";
+import { useLogger } from "../../context/LoggerContext";
 
 import configureMonaco from "./editorLoader";
 import { default as MonacoEditor } from "@monaco-editor/react";
+
+import { loadCode } from "../../libs/api";
 
 import Loading from "./Loading";
 
 function Editor({ setEditorUndo, setEditorRedo }) {
   const [debounceCallback] = useDebounceCallback(autoSave, 500);
-  const dispatch = useEditorStateDispatch();
-  const { tab } = useEditorStates();
-  const editorRef = useRef(null);
   const [version, setVersion] = useState(0);
+  const dispatch = useEditorStateDispatch();
+  const { tab, tabs } = useEditorStates();
+  const { logger } = useLogger();
+  const editorRef = useRef(null);
+
+  useEffect(() => {
+    if (!logger) return;
+
+    const codeDetected = async (key) => {
+      try {
+        let { name, value } = await loadCode(key);
+
+        if (tabs[name]) {
+          const fileName = name.slice(0, name.lastIndexOf("."));
+          name = `${fileName}-${Date.now()}.js`;
+        }
+
+        logger.log("Shared code found:", name);
+
+        dispatch({ type: "insert", tab: name, value });
+      } catch (err) {
+        console.error(err);
+        logger.error(err);
+      }
+    };
+
+    const params = new URLSearchParams(location.search);
+    const key = params.get("share");
+    if (key) {
+      history.pushState({}, "", location.origin);
+      codeDetected(key);
+    }
+  }, [logger]);
 
   function autoSave(value) {
     dispatch({ type: "save", value });

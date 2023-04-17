@@ -1,7 +1,6 @@
 import puppeteer from "puppeteer-core/lib/esm/puppeteer/web";
-import "./detaCollection";
 
-const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
 const WSS_BASE = "wss://chrome.browserless.io";
 
 let perfStart = 0;
@@ -48,8 +47,7 @@ async function startBrowser({ code, options }) {
   }
 
   const page = await browser.newPage();
-  page._screenshot = page.screenshot;
-  page.screenshot = (args) => page._screenshot({ ...args, encoding: "base64" });
+  customChanges(page);
 
   let client = null;
   if (options.livePreview) client = await initLivePreview(page);
@@ -103,4 +101,25 @@ async function initLivePreview(page) {
   });
 
   return client;
+}
+
+// Customize taking screenshots.
+function customChanges(page) {
+  page._screenshot = page.screenshot;
+  page.screenshot = async (args = {}) => {
+    let imagePath = args.path;
+
+    if (imagePath) args.path = null;
+    if (args.encoding === "binary") logger.warn("Browser does not support buffer converted to base64.");
+
+    const res = await page._screenshot({ ...args, encoding: "base64" });
+
+    if (imagePath) {
+      logger.groupCollapsed(imagePath);
+      logger.html(`<img src="data:image/${args.type};base64,${res}" />`);
+      logger.groupEnd();
+    }
+
+    return res;
+  }
 }

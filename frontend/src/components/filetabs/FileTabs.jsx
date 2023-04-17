@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { EllipsisVerticalIcon, PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useEditorStateDispatch, useEditorStates } from "../../context/EditorContext";
+import { useLogger } from "../../context/LoggerContext";
 
 function TabMenu() {
   const [showRenameDialog, setShowRenameDialog] = useState(false);
@@ -9,6 +10,7 @@ function TabMenu() {
   const [selectedTab, setSelectedTab] = useState("");
   const { tabs, tab } = useEditorStates();
   const dispatch = useEditorStateDispatch();
+  const { logger } = useLogger();
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -54,11 +56,12 @@ function TabMenu() {
     setShowRenameDialog(false);
 
     if (tabs[fileName]) {
-      return alert("The file with this name already exists!");
+      return logger.error("File with this name already exists!");
     }
 
-    const type = selectedTab ? "rename" : "insert";
-    dispatch({ type, tab: selectedTab, value: fileName });
+    // If a tab is selected, it is because it pressed the 3 dots.
+    if (selectedTab) dispatch({ type: "rename", tab: selectedTab, value: fileName });
+    else dispatch({ type: "insert", tab: fileName });
   });
 
   const openDeleteDialog = (ev) => {
@@ -87,7 +90,7 @@ function TabMenu() {
         {Object.values(tabs).map((file) => (
           <li className={`w-full ${file.name === tab.name ? "bordered" : ""}`} key={file.name} data-tab={file.name} onClick={changeTab}>
             <a className="w-full">
-              <span className="overflow-hidden text-ellipsis">{file.name}</span>
+              <span className="overflow-hidden whitespace-nowrap text-ellipsis">{file.name}</span>
               <div className="dropdown ml-auto">
                 <label tabIndex={0} className="btn btn-circle btn-sm btn-ghost">
                   <EllipsisVerticalIcon className="w-6 h-6" />
@@ -112,7 +115,7 @@ function TabMenu() {
         ))}
       </ul>
 
-      <input type="checkbox" checked={showRenameDialog} className="modal-toggle" />
+      <input type="checkbox" checked={showRenameDialog} className="modal-toggle" readOnly />
       <div className="modal z-50">
         <div className="modal-box max-w-xs">
           <h3 className="font-bold text-lg">{selectedTab ? "Rename" : "New File"}</h3>
@@ -128,7 +131,7 @@ function TabMenu() {
         </div>
       </div>
 
-      <input type="checkbox" checked={showDeleteDialog} className="modal-toggle" />
+      <input type="checkbox" checked={showDeleteDialog} className="modal-toggle" readOnly />
       <div className="modal">
         <div className="modal-box max-w-sm">
           <h3 className="font-bold text-lg">Delete</h3>

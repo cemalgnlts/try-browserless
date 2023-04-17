@@ -4,37 +4,53 @@
 
 This project is inspired by the [browserless/debugger](https://github.com/browserless/debugger) project. If your only use is debugging, [browserless/debugger](https://github.com/browserless/debugger) might be a better option.
 
-The project works through [Browserless.io](https://www.browserless.io).
+This project works with [browserless.io](https://www.browserless.io).
 
-The main components of the project are:
+## Coding Environment
 
-/frontend - Client side app, made with react and bundled using Vite.
-/backend - Express server that stores data and files using Deta Base / Deta Drive.
-Spacefile - configuration for deploying this app to [Deta Space](https://deta.space)
+Your code runs inside a Worker. Using the latest version `14.3.0` of `puppeteer-core` which supports the web version.
 
-## Development
+To make it easier for you, the browser is opened first, then the page is created and the `page` class is given to you, and the browser is automatically closed when your code is complete.
 
-1. Install and setup [Space CLI](https://deta.space/docs/en/basics/cli)
-2. Create a new Space project:
+The following example occurs when you first open the page:
+```js
+await page.goto("https://browserless.io")
 
-```bash
-space new
+const title = await page.title()
+
+console.log(title)
 ```
 
-2. Install frontend and backend dependencies together:
+When you press the Run button, it turns into this:
+```diff
++ const browser = await puppeteer.launch();
++ const page = await browser.newPage();
 
-```bash
-npm run install
+await page.goto("https://browserless.io");
+const title = await page.title();
+console.log(title);
+
++ await browser.close();
 ```
 
-3. Start app in development mode:
+It uses monaco editor as editor. This way it includes autocomplete support for puppeteer.
 
-```bash
-space dev
-```
+There are a few snippets in the editor. Type the abbreviation and select it with `tab`, `enter` or `mouse`.
 
-This will start both the frontend and backend Micros, connect them to your projects development data and emulate the Space routing.
+`log` ➜ `console.log`
+
+`go` ➜ `page.goto`
+
+`ev` ➜ `page.evaluate`
+
+`ss` ➜ `page.screenshot`
+
+From the options menu you can simulate a device and preview your operation live.
+
+## Contributing
+
+[Contributing](CONTRIBUTING.md)
 
 ## License
 
-[LICENSE](./LICENSE)
+[License](LICENSE)

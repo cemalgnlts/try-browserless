@@ -1,18 +1,25 @@
-import { useRef, useEffect, memo } from "react";
+import { useEffect, memo, useRef } from "react";
 
-function Console({ logger }) {
+import { useLogger } from "../../context/LoggerContext";
+
+function Console() {
+  const { logger, setLogger } = useLogger();
   const consoleRef = useRef(null);
 
   useEffect(() => {
     if (consoleRef.current !== null) {
-      logger.current = new LunaConsole(consoleRef.current, {
+      if(logger !== null) return;
+      
+      const luna = new LunaConsole(consoleRef.current, {
         theme: "dark"
       });
 
-      logger.current.html("<h1 class='font-bold text-2xl'>Try Browserless</h1>");
-      logger.current.log("Puppeteer Docs: https://pptr.dev");
-      logger.current.log("Browserless: https://browserless.io");
-      logger.current.log("GitHub: https://github.com/cemalgnlts/try-browserless");
+      luna.html("<h1 class='font-bold text-2xl'>Try Browserless</h1>");
+      luna.log("Puppeteer Docs: https://pptr.dev");
+      luna.log("Browserless: https://browserless.io");
+      luna.log("GitHub: https://github.com/cemalgnlts/try-browserless");
+
+      setLogger(luna);
     }
   }, [consoleRef.current]);
 

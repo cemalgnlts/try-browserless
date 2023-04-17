@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 import { fileURLToPath } from "url";
-import { cpus } from "os";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,4 +14,7 @@ export default defineConfig({
 			"dns": fileURLToPath(new URL("src/libs/dns.js", import.meta.url))
 		}
 	},
+	server: {
+		port: parseInt(process.env.PORT) || 5173
+	}
 });

@@ -8,18 +8,22 @@ import draculaTheme from "./draculaTheme.json";
 import puppeteerLibSource from "puppeteer-core/lib/types.d.ts?raw";
 
 /*self.MonacoEnvironment = {
-	getWorker(_, label) {
-		if (label === "typescript" || label === "javascript") {
-			return new tsWorker();
-		}
-		return new editorWorker();
-	},
+  getWorker(_, label) {
+    if (label === "typescript" || label === "javascript") {
+      return new tsWorker();
+    }
+    return new editorWorker();
+  },
 };*/
 
 export default function configureMonaco(monaco) {
   // If Type is already defined, do not define it again.
   const extraLibs = monaco.languages.typescript.javascriptDefaults.getExtraLibs();
   if (extraLibs["node_modules/puppeteer-core/lib/types.d.ts"]) return;
+
+  monaco.languages.registerCompletionItemProvider("javascript", {
+    provideCompletionItems: () => getSnippets(monaco.languages.CompletionItemKind.Snippet, monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet)
+  });
 
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
     target: monaco.languages.typescript.ScriptTarget.ESNext,
@@ -38,4 +42,40 @@ declare const page: Page;";`;
 
   monaco.editor.defineTheme("dracula", draculaTheme);
   monaco.editor.setTheme("dracula");
+}
+
+
+function getSnippets(kind, insertTextRules) {
+  return {
+    suggestions: [
+      {
+        label: "log",
+        insertText: 'console.log("$1")',
+        documentation: 'console.log',
+        insertTextRules,
+        kind
+      },
+      {
+        label: "go",
+        insertText: 'await page.goto("$1")',
+        documentation: 'page.goto',
+        insertTextRules,
+        kind
+      },
+      {
+        label: "ss",
+        insertText: 'await page.screenshot({ path: "$1.png" })',
+        documentation: 'page.screenshot',
+        insertTextRules,
+        kind
+      },
+      {
+        label: "ev",
+        insertText: 'await page.evaluate(() => {\n\t$1\n})',
+        documentation: 'page.evaluate',
+        insertTextRules,
+        kind
+      },
+    ]
+  }
 }

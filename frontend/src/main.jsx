@@ -7,13 +7,16 @@ import App from "./App";
 
 import EditorProvider from "./context/EditorContext";
 import NavbarContextProvider from "./context/NavbarContext";
+import LoggerProvider from "./context/LoggerContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <EditorProvider>
     <NavbarContextProvider>
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
+      <LoggerProvider>
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      </LoggerProvider>
     </NavbarContextProvider>
   </EditorProvider>
 );

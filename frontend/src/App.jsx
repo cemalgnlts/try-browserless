@@ -9,9 +9,10 @@ import Loading from "./components/editor/Loading";
 const Editor = lazy(() => import("./components/editor"));
 
 import { useNavbarContext } from "./context/NavbarContext.jsx";
+import { useEditorStates } from "./context/EditorContext";
+import { useLogger } from "./context/LoggerContext";
 
 import PuppeteerWorker from "./libs/worker.js?worker";
-import { useEditorStates } from "./context/EditorContext";
 
 function Root() {
   const [editorUndo, setEditorUndo] = useState(null);
@@ -20,45 +21,46 @@ function Root() {
   const { theme, isTabMenuVisible, isLogsVisible } = useNavbarContext();
   const { tab } = useEditorStates();
   const worker = useRef(null);
-  const logger = useRef(null);
+  const { logger } = useLogger();
   const popupWin = useRef(null);
 
   useEffect(() => {
-    if (worker.current === null) {
-      const messageHandler = (msg) => {
-        const { type, data } = msg.data;
+    if (worker.current !== null) return;
+    if (logger === null) return;
 
-        switch (type) {
-          case "browserClosed": {
-            setBrowserStarted(false);
-            if (popupWin.current !== null) popupWin.current.close();
-            logger.current.html(`<span class="log-small">Completed: ${(data / 1000).toFixed(2)} seconds.</span>`);
-            break;
-          }
-          case "frame": {
-            if (popupWin.current !== null) popupWin.current.postMessage(data.img);
-            break;
-          }
-          case "log": {
-            const { fun, args } = data;
-            logger.current[fun](...args);
-            break;
-          }
+    const messageHandler = (msg) => {
+      const { type, data } = msg.data;
+
+      switch (type) {
+        case "browserClosed": {
+          setBrowserStarted(false);
+          if (popupWin.current !== null) popupWin.current.close();
+          logger.html(`<span class="log-small">Completed: ${(data / 1000).toFixed(2)} seconds.</span>`);
+          break;
         }
-      };
+        case "frame": {
+          if (popupWin.current !== null) popupWin.current.postMessage(data.img);
+          break;
+        }
+        case "log": {
+          const { fun, args } = data;
+          logger[fun](...args);
+          break;
+        }
+      }
+    };
 
-      worker.current = new PuppeteerWorker();
-      worker.current.onmessage = messageHandler;
-      worker.current.onerror = (res) => {
-        console.error(res);
-        logger.current.error(res.message ?? res);
-      };
-    }
-  }, []);
+    worker.current = new PuppeteerWorker();
+    worker.current.onmessage = messageHandler;
+    worker.current.onerror = (res) => {
+      console.error(res);
+      logger.error(res.message ?? res);
+    };
+  }, [logger]);
 
   const runBrowser = useCallback(async () => {
     setBrowserStarted(true);
-    logger.current.clear();
+    logger.clear();
 
     const data = {
       code: tab.value,
@@ -67,7 +69,7 @@ function Root() {
 
     if (data.options.livePreview) {
       popupWin.current = window.open("/live-preview.html", "Live Preview", "popup");
-      if (popupWin.current === null) logger.current.error("The window wasn't allowed to open, This is likely caused by built-in popup blockers.");
+      if (popupWin.current === null) logger.error("The window wasn't allowed to open, This is likely caused by built-in popup blockers.");
     }
 
     worker.current.postMessage({ type: "run", data });

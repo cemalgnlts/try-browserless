@@ -8,6 +8,7 @@
 	"private": true,
   "scripts": {
 		"dev": "space dev",
+    "dev:frontend": "cd frontend && npm run dev",
 		"install": "npm run install:frontend && npm run install:backend",
 		"install:frontend": "cd frontend && npm install",
 		"install:backend": "cd backend && npm install"

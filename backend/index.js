@@ -14,27 +14,29 @@ app.use(express.text());
 app.get("/", (req, res) => res.send("ok"));
 
 app.get("/share/:key", async (req, res) => {
-	let value = "";
+	let item = null;
 
 	try {
 		// Delete after one day.
-		const item = await base.get(req.params.key);
-		if(item === null) throw Error("Incorrect shortcode or shortcode expired.");
-
-		value = item.value;
-	} catch(err) {
+		item = await base.get(req.params.key);
+		if (item === null) throw Error("Incorrect shortcode or shortcode expired.");
+	} catch (err) {
 		res.status(500).send(err.toString());
 		return;
 	}
 
-	res.send(value);
+	res.send(item);
 });
 
 app.post("/share", async (req, res) => {
+	let item;
 	try {
 		// Delete after one day.
-		const item = await base.put(req.body, null, { expireIn: 86400 });
-	} catch(err) {
+		item = await base.put({
+			value: req.body,
+			name: req.query.name
+		}, null, { expireIn: 86400 });
+	} catch (err) {
 		res.status(500).send(err.toString());
 		return;
 	}
@@ -42,6 +44,8 @@ app.post("/share", async (req, res) => {
 	res.send(item.key);
 });
 
+// ToDo: Upload files?
+/*
 app.get("/files/:file", async (req, res) => {
 	const file = null;
 
@@ -73,5 +77,6 @@ app.post("/upload", async (req, res) => {
 
 	res.send(data);
 });
+*/
 
 app.listen(PORT, () => console.log("App listening on", PORT));

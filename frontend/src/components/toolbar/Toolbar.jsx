@@ -1,31 +1,39 @@
 import { useState } from "react";
 
 import { useEditorStateDispatch, useEditorStates } from "../../context/EditorContext";
+import { useLogger } from "../../context/LoggerContext";
 
 import { PlayIcon, ArrowUturnLeftIcon, ArrowUturnRightIcon, ShareIcon } from "@heroicons/react/24/outline";
 
 import Options from "./Options";
 
+import { shareCode } from "../../libs/api";
+
 function Toolbar({ browserStarted, runBrowser, editorUndo, editorRedo }) {
-  const { canShare, canRedo, canUndo } = useEditorStates();
+  const { canShare, canRedo, canUndo, tab } = useEditorStates();
   const [shareStarted, canShareStarted] = useState(false);
   const dispatch = useEditorStateDispatch();
-
-  const onRedo = () => {
-    editorRedo();
-  };
-
-  const onUndo = () => {
-    editorUndo();
-  };
+  const { logger } = useLogger();
 
   const onShare = async () => {
     canShareStarted(true);
+
+    try {
+      const code = await shareCode(tab.name, tab.value);
+      logger.log("Share code:", code);
+      logger.log("Expires after one day.");
+    } catch(err) {
+      console.error(err);
+      logger.error(err);
+    }
+
     canShareStarted(false);
 
     dispatch({ type: "canShare", value: false });
   };
 
+  const onRedo = () => editorRedo();
+  const onUndo = () => editorUndo();
   const onPlay = () => runBrowser();
 
   return (
