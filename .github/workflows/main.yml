@@ -9,6 +9,6 @@ jobs:
       - name: Deta Space Deployment Github Action
         uses: neobrains/space-deployment-github-action@v0.5
         with:
-          access_token: ${{ secrets.DETA_TOKEN }}
-          project_id: ${{ secrets.PROJECT_ID }}
+          access_token: ${{ env.DETA_TOKEN }}
+          project_id: ${{ env.PROJECT_ID }}
           space_push: true
