@@ -3,7 +3,9 @@
 The main components of the project are:
 
 /frontend - Client side app, made with react and bundled using Vite.
+
 /backend - Express server that stores data and files using Deta Base / Deta Drive.
+
 Spacefile - configuration for deploying this app to [Deta Space](https://deta.space)
 
 ## Front End
